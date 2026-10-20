@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: API da plataforma Desenrasca
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: Desenrasca
+    description: Pedidos locais, perfis, candidaturas e mensagens
 paths:
   /healthz:
     get:
@@ -24,6 +26,244 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [Desenrasca]
+      summary: Pesquisar pedidos disponíveis
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: category
+          in: query
+          schema: { $ref: "#/components/schemas/JobCategory" }
+        - name: location
+          in: query
+          schema: { type: string }
+        - name: maxBudget
+          in: query
+          schema: { type: number, minimum: 0 }
+      responses:
+        "200":
+          description: Pedidos disponíveis
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Job" }
+    post:
+      operationId: createJob
+      tags: [Desenrasca]
+      summary: Publicar pedido
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/JobInput" }
+      responses:
+        "201":
+          description: Pedido publicado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Job" }
+  /jobs/{jobId}:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: getJob
+      tags: [Desenrasca]
+      summary: Consultar pedido
+      responses:
+        "200":
+          description: Detalhes do pedido
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Job" }
+        "404": { description: Pedido não encontrado }
+    patch:
+      operationId: updateJob
+      tags: [Desenrasca]
+      summary: Editar pedido próprio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/JobUpdate" }
+      responses:
+        "200":
+          description: Pedido atualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Job" }
+        "403": { description: Sem autorização }
+        "404": { description: Pedido não encontrado }
+    delete:
+      operationId: deleteJob
+      tags: [Desenrasca]
+      summary: Eliminar pedido próprio
+      responses:
+        "204": { description: Pedido eliminado }
+        "403": { description: Sem autorização }
+        "404": { description: Pedido não encontrado }
+  /my/jobs:
+    get:
+      operationId: listMyJobs
+      tags: [Desenrasca]
+      summary: Listar pedidos publicados pelo utilizador
+      responses:
+        "200":
+          description: Pedidos próprios
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Job" }
+  /stats:
+    get:
+      operationId: getStats
+      tags: [Desenrasca]
+      summary: Consultar resumo público da plataforma
+      responses:
+        "200":
+          description: Contagens públicas
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Stats" }
+  /me:
+    get:
+      operationId: getMe
+      tags: [Desenrasca]
+      summary: Consultar perfil autenticado
+      responses:
+        "200":
+          description: Perfil próprio
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+    put:
+      operationId: updateMe
+      tags: [Desenrasca]
+      summary: Atualizar perfil próprio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProfileInput" }
+      responses:
+        "200":
+          description: Perfil atualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+  /jobs/{jobId}/applications:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: listJobApplications
+      tags: [Desenrasca]
+      summary: Listar candidaturas de um pedido próprio
+      responses:
+        "200":
+          description: Candidaturas recebidas
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Application" }
+        "403": { description: Sem autorização }
+    post:
+      operationId: applyToJob
+      tags: [Desenrasca]
+      summary: Candidatar-se a um pedido
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApplicationInput" }
+      responses:
+        "201":
+          description: Candidatura submetida
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+        "409": { description: Já existe uma candidatura para este pedido }
+  /applications:
+    get:
+      operationId: listMyApplications
+      tags: [Desenrasca]
+      summary: Listar candidaturas submetidas pelo utilizador
+      responses:
+        "200":
+          description: Candidaturas próprias
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Application" }
+  /applications/{applicationId}/status:
+    parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: updateApplicationStatus
+      tags: [Desenrasca]
+      summary: Atualizar estado de candidatura do pedido próprio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApplicationStatusInput" }
+      responses:
+        "200":
+          description: Estado atualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+        "403": { description: Sem autorização }
+  /applications/{applicationId}/messages:
+    parameters:
+      - name: applicationId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: listApplicationMessages
+      tags: [Desenrasca]
+      summary: Consultar conversa privada de uma candidatura
+      responses:
+        "200":
+          description: Mensagens da conversa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Message" }
+        "403": { description: Sem autorização }
+    post:
+      operationId: sendApplicationMessage
+      tags: [Desenrasca]
+      summary: Enviar mensagem privada numa candidatura
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MessageInput" }
+      responses:
+        "201":
+          description: Mensagem enviada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+        "403": { description: Sem autorização }
 components:
   schemas:
     HealthStatus:
@@ -33,4 +273,106 @@ components:
           type: string
       required:
         - status
+    JobCategory:
+      type: string
+      enum: [limpezas, jardinagem, reparacoes, montagem_movel, mudancas, recados, outros]
+    JobStatus:
+      type: string
+      enum: [open, closed]
+    ApplicationStatus:
+      type: string
+      enum: [pending, accepted, rejected]
+    Profile:
+      type: object
+      required: [displayName, ratingAverage, ratingCount]
+      properties:
+        displayName: { type: ["string", "null"] }
+        ratingAverage: { type: ["number", "null"] }
+        ratingCount: { type: integer }
+    ProfileInput:
+      type: object
+      required: [displayName]
+      properties:
+        displayName: { type: string, minLength: 2, maxLength: 60 }
+    Job:
+      type: object
+      required: [id, title, description, category, location, budget, scheduledDate, status, ownerId, ownerName, createdAt, applicationCount]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        category: { $ref: "#/components/schemas/JobCategory" }
+        location: { type: string }
+        budget: { type: number }
+        scheduledDate: { type: ["string", "null"], format: date }
+        status: { $ref: "#/components/schemas/JobStatus" }
+        ownerId: { type: string }
+        ownerName: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+        applicationCount: { type: integer }
+    JobInput:
+      type: object
+      required: [title, description, category, location, budget]
+      properties:
+        title: { type: string, minLength: 4, maxLength: 100 }
+        description: { type: string, minLength: 10, maxLength: 2000 }
+        category: { $ref: "#/components/schemas/JobCategory" }
+        location: { type: string, minLength: 2, maxLength: 100 }
+        budget: { type: number, minimum: 0, maximum: 100000 }
+        scheduledDate: { type: ["string", "null"], format: date }
+    JobUpdate:
+      type: object
+      properties:
+        title: { type: string, minLength: 4, maxLength: 100 }
+        description: { type: string, minLength: 10, maxLength: 2000 }
+        category: { $ref: "#/components/schemas/JobCategory" }
+        location: { type: string, minLength: 2, maxLength: 100 }
+        budget: { type: number, minimum: 0, maximum: 100000 }
+        scheduledDate: { type: ["string", "null"], format: date }
+        status: { $ref: "#/components/schemas/JobStatus" }
+    Application:
+      type: object
+      required: [id, jobId, jobTitle, applicantId, applicantName, message, status, createdAt]
+      properties:
+        id: { type: integer }
+        jobId: { type: integer }
+        jobTitle: { type: string }
+        applicantId: { type: string }
+        applicantName: { type: ["string", "null"] }
+        message: { type: string }
+        status: { $ref: "#/components/schemas/ApplicationStatus" }
+        createdAt: { type: string, format: date-time }
+    ApplicationInput:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string, minLength: 10, maxLength: 1000 }
+    ApplicationStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [accepted, rejected]
+    Message:
+      type: object
+      required: [id, applicationId, senderId, senderName, content, createdAt]
+      properties:
+        id: { type: integer }
+        applicationId: { type: integer }
+        senderId: { type: string }
+        senderName: { type: ["string", "null"] }
+        content: { type: string }
+        createdAt: { type: string, format: date-time }
+    MessageInput:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string, minLength: 1, maxLength: 2000 }
+    Stats:
+      type: object
+      required: [openJobs, workers]
+      properties:
+        openJobs: { type: integer }
+        workers: { type: integer }
 

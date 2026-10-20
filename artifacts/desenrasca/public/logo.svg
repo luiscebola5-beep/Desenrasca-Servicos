@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 48" role="img" aria-labelledby="title">
+  <title id="title">Desenrasca</title>
+  <rect width="44" height="44" x="2" y="2" rx="14" fill="#26794f"/>
+  <path d="M27 13v14H13m0 0 16 9" fill="none" stroke="#fffefa" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+  <text x="57" y="34" fill="#20364a" font-family="DM Sans, sans-serif" font-size="29" font-weight="700" letter-spacing="-1.2">desenrasca<tspan fill="#26794f">.</tspan></text>
+</svg>

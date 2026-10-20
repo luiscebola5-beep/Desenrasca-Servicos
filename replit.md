@@ -1,6 +1,6 @@
-# [Project name]
+# Desenrasca
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Marketplace em português de Portugal que liga pessoas que precisam de pequenos serviços a profissionais e trabalhadores locais, começando por Estremoz e arredores.
 
 ## Run & Operate
 
@@ -22,19 +22,28 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/desenrasca` — aplicação web responsiva.
+- `artifacts/api-server` — API partilhada, autenticação e operações do marketplace.
+- `lib/api-spec/openapi.yaml` — contrato da API e fonte para os hooks e validações gerados.
+- `lib/db/src/schema/` — tabelas PostgreSQL.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Clerk gerido pelo Replit autentica utilizadores; o servidor associa os dados ao ID verificado da sessão.
+- PostgreSQL guarda perfis, pedidos, candidaturas e mensagens; apenas o autor pode editar ou eliminar o seu pedido.
+- As conversas de candidatura só são acessíveis ao autor do pedido e à pessoa candidata.
+- As tabelas de avaliações e comissões são apenas preparação futura; não há pagamentos nem comissões cobradas.
+- Não são inseridos dados de demonstração como se fossem pedidos reais.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Pesquisa e publicação de pequenos trabalhos locais, candidaturas, conversas privadas e gestão de pedidos e candidaturas numa área pessoal.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Interface e textos em português de Portugal, com foco em telemóveis Android e iPhone.
+- Priorizar autenticação, persistência real e publicação de pedidos; não implementar pagamentos nesta versão.
+- Explicar configurações técnicas em linguagem simples e avisar antes de custos ou serviços pagos.
 
 ## Gotchas
 

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Desenrasca"
+description = "Marketplace português para ligar pessoas que precisam de pequenos serviços locais a quem os pode realizar, começando em Estremoz e arredores."
+version = "1.0.0"
+id = "artifacts/desenrasca"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22469
+
+[services.development]
+run = "pnpm --filter @workspace/desenrasca run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/desenrasca", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/desenrasca/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22469"
+BASE_PATH = "/"
